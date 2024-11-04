@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Application</title>
+    <link href="./style.css" rel="stylesheet"/>
+</head>
+<body>
+        <section class="outer">
+            <header>
+                <h1>User</h1>
+            </header>
+            <section class="lower">
+                <div class="chat">
+                    <!-- <div class="user2">
+                        <div class="profile"></div>
+                        <div class="c1">hlo</div>
+                    </div>  -->
+                </div>
+                
+                <div class="input"> 
+                    <input id="message" type="text"/>
+                    <button id="sendChat" type="submit">Submit</button>
+                </div>
+            </section>
+        </section>
+
+    <script type="module">
+        import { io } from "https://cdn.socket.io/4.7.5/socket.io.esm.min.js";
+      
+        const socket = io("http://localhost:3000");
+        const id=document.getElementById('sendChat')
+        console.log(id)
+        const input = document.getElementById('message');
+        const out=document.querySelector(".chat");
+        const room="1_2";
+        id.addEventListener('click',()=>{
+            if (input.value) {
+                socket.emit("sendMessage", {room:room,content:input.value});
+                input.value=''
+            }
+        })
+        input.addEventListener("keypress", function(event) {
+            if(event.key === "Enter") {
+                if (input.value) {
+                    socket.emit("sendMessage", {room:room,content:input.value});
+                    input.value=''
+                }
+            }
+        })
+        socket.on('receiveMessage',(data)=>{
+            const content = `<div class="user2">
+                    <div class="profile"></div>
+                    <div class="c1">${data.message}</div>
+                </div>`;
+                out.innerHTML += content; 
+        })
+        function joinRoom() {
+            socket.emit('joinRoom',room);
+        }
+        joinRoom()
+        socket.on("connect", () => {
+            console.log("Connected to the server!");
+        });
+
+        console.log("hello")
+      </script>
+</body>
+</html>
